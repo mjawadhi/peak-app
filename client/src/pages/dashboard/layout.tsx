@@ -6,7 +6,7 @@ import { getTUToken, clearTUToken, decodePayload } from "@/lib/auth";
 import { queryClient } from "@/lib/queryClient";
 import {
   LayoutDashboard, ShoppingBag, Package, Settings, LogOut,
-  Menu, X, ChevronRight, Users, UserCog,
+  Menu, X, ChevronRight, Users, UserCog, BarChart2,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -14,13 +14,15 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 
 interface StoreInfo { name: string; primaryColor: string; logoUrl: string; status: string; }
 
-const NAV_ITEMS = [
-  { href: "", label: "Overview", icon: LayoutDashboard },
-  { href: "/orders", label: "Orders", icon: ShoppingBag },
-  { href: "/products", label: "Products", icon: Package },
-  { href: "/customers", label: "Customers", icon: Users },
-  { href: "/team", label: "Team", icon: UserCog },
-  { href: "/settings", label: "Settings", icon: Settings },
+// Nav items with optional permission key — undefined means always show
+const NAV_ITEMS: { href: string; label: string; icon: React.ElementType; permKey?: string }[] = [
+  { href: "",           label: "Overview",  icon: LayoutDashboard },
+  { href: "/orders",    label: "Orders",    icon: ShoppingBag,  permKey: "orders" },
+  { href: "/products",  label: "Products",  icon: Package,      permKey: "products" },
+  { href: "/customers", label: "Customers", icon: Users,        permKey: "customers" },
+  { href: "/analytics", label: "Analytics", icon: BarChart2,    permKey: "analytics" },
+  { href: "/team",      label: "Team",      icon: UserCog,      permKey: "team" },
+  { href: "/settings",  label: "Settings",  icon: Settings,     permKey: "settings" },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -28,7 +30,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [location, navigate] = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Auth guard
+  // Auth guard + parse permissions
+  const [userPerms, setUserPerms] = useState<Record<string, any>>({});
+  const [userRole, setUserRole] = useState<string>("staff");
+
   useEffect(() => {
     const token = getTUToken();
     if (!token) { navigate(`/t/${slug}/login`); return; }
@@ -36,8 +41,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (!payload || payload.exp * 1000 < Date.now()) {
       clearTUToken();
       navigate(`/t/${slug}/login`);
+      return;
     }
+    setUserRole(payload.role || "staff");
+    try { setUserPerms(JSON.parse(payload.permissions || "{}")); } catch { setUserPerms({}); }
   }, [slug]);
+
+  // Owner always has full access; other roles check their permissions object
+  function canSeeNav(permKey?: string): boolean {
+    if (!permKey) return true;            // Overview — always show
+    if (userRole === "owner") return true; // Owner sees everything
+    const val = userPerms[permKey];
+    if (typeof val === "boolean") return val;
+    if (typeof val === "string") return val !== "none";
+    return false;
+  }
 
   const { data: store, isLoading } = useQuery<StoreInfo>({
     queryKey: ["/api/t", slug, "store-info"],
@@ -85,7 +103,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-3 space-y-1">
-        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+        {NAV_ITEMS.filter(({ permKey }) => canSeeNav(permKey)).map(({ href, label, icon: Icon }) => {
           const active = isActive(href);
           return (
             <Link

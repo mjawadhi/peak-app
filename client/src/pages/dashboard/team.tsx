@@ -21,6 +21,7 @@ interface Permissions {
   customers: "none" | "view";
   settings: boolean;
   team: boolean;
+  analytics: boolean;
 }
 
 interface TeamUser {
@@ -47,10 +48,10 @@ const ROLE_OPTIONS = [
 ];
 
 const DEFAULT_PERMS: Record<string, Permissions> = {
-  manager: { orders: "manage", products: "manage", customers: "view",  settings: false, team: false },
-  staff:   { orders: "manage", products: "view",   customers: "none",  settings: false, team: false },
-  viewer:  { orders: "view",   products: "view",   customers: "none",  settings: false, team: false },
-  custom:  { orders: "none",   products: "none",   customers: "none",  settings: false, team: false },
+  manager: { orders: "manage", products: "manage", customers: "view",  settings: false, team: false, analytics: false },
+  staff:   { orders: "manage", products: "view",   customers: "none",  settings: false, team: false, analytics: false },
+  viewer:  { orders: "view",   products: "view",   customers: "none",  settings: false, team: false, analytics: false },
+  custom:  { orders: "none",   products: "none",   customers: "none",  settings: false, team: false, analytics: false },
 };
 
 function emptyForm(): UserForm {
@@ -267,12 +268,13 @@ export default function DashboardTeam() {
                     </div>
 
                     {/* Permission summary */}
-                    <div className="mt-2 ml-12 grid grid-cols-3 sm:grid-cols-5 gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                    <div className="mt-2 ml-12 grid grid-cols-3 sm:grid-cols-6 gap-x-4 gap-y-1 text-xs text-muted-foreground">
                       <div><span className="mr-1">Orders:</span><PermLabel level={u.permissions?.orders ?? "none"} /></div>
                       <div><span className="mr-1">Products:</span><PermLabel level={u.permissions?.products ?? "none"} /></div>
                       <div><span className="mr-1">Customers:</span><PermLabel level={u.permissions?.customers ?? "none"} /></div>
                       <div><span className="mr-1">Settings:</span><PermLabel level={u.permissions?.settings ?? false} /></div>
                       <div><span className="mr-1">Team:</span><PermLabel level={u.permissions?.team ?? false} /></div>
+                      <div><span className="mr-1">Analytics:</span><PermLabel level={u.permissions?.analytics ?? false} /></div>
                     </div>
                   </div>
                 ))}
@@ -409,6 +411,16 @@ export default function DashboardTeam() {
                   checked={form.permissions.team}
                   onCheckedChange={v => setForm(f => ({ ...f, role: "custom", permissions: { ...f.permissions, team: v } }))}
                   data-testid="switch-permTeam"
+                />
+              </div>
+
+              {/* Analytics */}
+              <div className="flex items-center justify-between gap-2">
+                <Label className="text-xs font-normal">Analytics</Label>
+                <Switch
+                  checked={form.permissions.analytics ?? false}
+                  onCheckedChange={v => setForm(f => ({ ...f, role: "custom", permissions: { ...f.permissions, analytics: v } }))}
+                  data-testid="switch-permAnalytics"
                 />
               </div>
             </div>

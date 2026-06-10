@@ -100,15 +100,16 @@ export interface TenantPermissions {
   customers: "none" | "view";
   settings: boolean;
   team: boolean;
+  analytics: boolean;
 }
 
 function getDefaultPermissions(role: string): TenantPermissions {
   switch (role) {
-    case "owner":   return { orders: "manage", products: "manage", customers: "view", settings: true,  team: true  };
-    case "manager": return { orders: "manage", products: "manage", customers: "view", settings: false, team: false };
-    case "staff":   return { orders: "manage", products: "view",   customers: "none", settings: false, team: false };
-    case "viewer":  return { orders: "view",   products: "view",   customers: "none", settings: false, team: false };
-    default:        return { orders: "none",   products: "none",   customers: "none", settings: false, team: false };
+    case "owner":   return { orders: "manage", products: "manage", customers: "view", settings: true,  team: true,  analytics: true  };
+    case "manager": return { orders: "manage", products: "manage", customers: "view", settings: false, team: false, analytics: false };
+    case "staff":   return { orders: "manage", products: "view",   customers: "none", settings: false, team: false, analytics: false };
+    case "viewer":  return { orders: "view",   products: "view",   customers: "none", settings: false, team: false, analytics: false };
+    default:        return { orders: "none",   products: "none",   customers: "none", settings: false, team: false, analytics: false };
   }
 }
 
@@ -892,6 +893,75 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
       auditLog(req, "tenant_user", "team_user.delete", "tenant_user", req.params.userId, { email: target.email });
       db.delete(schema.tenantUsers).where(eq(schema.tenantUsers.id, req.params.userId)).run();
       res.json({ ok: true });
+    } catch (e: any) { res.status(500).json({ message: e.message }); }
+  });
+
+  // ─── TENANT ANALYTICS ────────────────────────────────────────
+  app.get("/api/t/:slug/dashboard/analytics", requireTU, (req, res) => {
+    try {
+      const user = (req as any).tenantUser as TUPayload;
+      const perms = parsePerms((user as any).permissions);
+      // Owner always has access; others need analytics: true
+      if (user.role !== "owner" && !perms.analytics) {
+        return res.status(403).json({ message: "Analytics access not granted" });
+      }
+      const { tenantId } = user;
+
+      const allOrders = db.select().from(schema.orders)
+        .where(eq(schema.orders.tenantId, tenantId)).all();
+      const allItems = db.select().from(schema.orderItems)
+        .where(eq(schema.orderItems.tenantId, tenantId)).all();
+
+      // KPIs
+      const totalRevenue = allOrders.reduce((s, o) => s + (parseFloat(String(o.total)) || 0), 0);
+      const totalOrders = allOrders.length;
+      const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+      const pendingOrders = allOrders.filter(o => o.status === "pending").length;
+
+      // Revenue & orders by day (last 30 days)
+      const revenueByDay: Record<string, number> = {};
+      const ordersByDay: Record<string, number> = {};
+      allOrders.forEach(o => {
+        const day = (o.createdAt || "").slice(0, 10);
+        if (!day) return;
+        revenueByDay[day] = (revenueByDay[day] || 0) + (parseFloat(String(o.total)) || 0);
+        ordersByDay[day] = (ordersByDay[day] || 0) + 1;
+      });
+
+      // Top products by quantity sold
+      const productQty: Record<string, { name: string; qty: number; revenue: number }> = {};
+      allItems.forEach(item => {
+        const key = item.productNameEn;
+        if (!productQty[key]) productQty[key] = { name: key, qty: 0, revenue: 0 };
+        productQty[key].qty += item.quantity || 0;
+        productQty[key].revenue += item.totalPrice || 0;
+      });
+      const topProducts = Object.values(productQty)
+        .sort((a, b) => b.qty - a.qty).slice(0, 5);
+
+      // Order status breakdown
+      const statusBreakdown: Record<string, number> = {};
+      allOrders.forEach(o => {
+        statusBreakdown[o.status || "unknown"] = (statusBreakdown[o.status || "unknown"] || 0) + 1;
+      });
+
+      // Fulfillment split
+      const pickupCount = allOrders.filter(o => o.fulfillmentType === "pickup").length;
+      const deliveryCount = allOrders.filter(o => o.fulfillmentType === "delivery").length;
+
+      res.json({
+        kpi: {
+          totalRevenue: +totalRevenue.toFixed(3),
+          totalOrders,
+          avgOrderValue: +avgOrderValue.toFixed(3),
+          pendingOrders,
+        },
+        revenueByDay,
+        ordersByDay,
+        topProducts,
+        statusBreakdown,
+        fulfillmentSplit: { pickup: pickupCount, delivery: deliveryCount },
+      });
     } catch (e: any) { res.status(500).json({ message: e.message }); }
   });
 

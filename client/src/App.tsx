@@ -15,6 +15,7 @@ import DashboardProducts from "@/pages/dashboard/products";
 import DashboardSettings from "@/pages/dashboard/settings";
 import DashboardCustomers from "@/pages/dashboard/customers";
 import DashboardTeam from "@/pages/dashboard/team";
+import DashboardAnalytics from "@/pages/dashboard/analytics";
 import AdminLogin from "@/pages/admin-login";
 import AdminLayout from "@/pages/admin/layout";
 import AdminDashboard from "@/pages/admin/dashboard";
@@ -44,6 +45,7 @@ function AppRouter() {
       <Route path="/t/:slug/dashboard/settings" component={DashboardSettings} />
       <Route path="/t/:slug/dashboard/customers" component={DashboardCustomers} />
       <Route path="/t/:slug/dashboard/team" component={DashboardTeam} />
+      <Route path="/t/:slug/dashboard/analytics" component={DashboardAnalytics} />
 
       {/* Super admin */}
       <Route path="/admin/login" component={AdminLogin} />
