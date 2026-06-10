@@ -1,7 +1,7 @@
 import { useParams, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { apiFetch } from "@/lib/queryClient";
+import { apiFetch, resolveUrl } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ShoppingCart, Minus, Plus, X, Store, MapPin, Truck } from "lucide-react";
@@ -20,6 +20,7 @@ interface ProductVariant { id: string; name: string; priceModifier: number; }
 interface Product {
   id: string; name: string; description: string; basePrice: number;
   imageUrl: string; categoryId: string | null; isAvailable: boolean;
+  imagePosition?: string;
   variants: ProductVariant[];
 }
 interface CartItem { product: Product; variant: ProductVariant | null; qty: number; }
@@ -404,7 +405,7 @@ function ProductCard({ product, accentColor, onAddToCart }: {
   return (
     <div data-testid={`card-product-${product.id}`} className="rounded-xl border border-border bg-card overflow-hidden flex flex-col hover:shadow-sm transition-shadow">
       {product.imageUrl ? (
-        <img src={product.imageUrl} alt={product.name} className="w-full h-32 object-cover" />
+        <img src={resolveUrl(product.imageUrl)} alt={product.name} className="w-full h-32 object-cover" style={{ objectPosition: product.imagePosition || "50% 50%" }} />
       ) : (
         <div className="w-full h-32 bg-muted flex items-center justify-center">
           <span className="text-2xl">🛍️</span>

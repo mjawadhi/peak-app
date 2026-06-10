@@ -12,7 +12,14 @@ export const queryClient = new QueryClient({
 // Resolve API base — deploy_website rewrites the literal string "__PORT_5000__"
 // in the JS bundle at upload time. Do NOT read from window — keep it as a literal
 // string so the rewrite hits it correctly.
-const API_BASE = "__PORT_5000__".startsWith("__") ? "" : "__PORT_5000__";
+export const API_BASE = "__PORT_5000__".startsWith("__") ? "" : "__PORT_5000__";
+
+// Prefix uploaded image URLs so they route through the backend proxy on pplx.app
+export function resolveUrl(url: string): string {
+  if (!url) return "";
+  if (url.startsWith("/uploads/")) return `${API_BASE}${url}`;
+  return url;
+}
 
 export async function apiRequest(
   method: string,

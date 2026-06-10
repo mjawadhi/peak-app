@@ -19,24 +19,27 @@ import {
   Tag, Search, CheckCircle2, XCircle,
 } from "lucide-react";
 import DashboardLayout from "./layout";
+import { ImageUpload } from "@/components/image-upload";
+import { ImagePositionPicker } from "@/components/image-position-picker";
+import { resolveUrl } from "@/lib/queryClient";
 
 interface Category { id: string; nameEn: string; nameAr: string; isActive: number; sortOrder: number; }
 interface Product {
   id: string; name: string; description: string;
-  basePrice: number; isAvailable: boolean; imageUrl: string;
+  basePrice: number; isAvailable: boolean; imageUrl: string; imagePosition: string;
   categoryId: string | null; stockQuantity: number;
 }
 
 type ProductForm = {
   name: string; description: string; basePrice: string;
-  imageUrl: string; isAvailable: boolean;
+  imageUrl: string; imagePosition: string; isAvailable: boolean;
   categoryId: string; stockQuantity: string;
 };
 
 type CategoryForm = { nameEn: string; nameAr: string; };
 
 const emptyForm = (): ProductForm => ({
-  name: "", description: "", basePrice: "", imageUrl: "",
+  name: "", description: "", basePrice: "", imageUrl: "", imagePosition: "50% 50%",
   isAvailable: true, categoryId: "none", stockQuantity: "999",
 });
 
@@ -99,6 +102,7 @@ export default function DashboardProducts() {
     setForm({
       name: p.name, description: p.description,
       basePrice: String(p.basePrice), imageUrl: p.imageUrl,
+      imagePosition: p.imagePosition || "50% 50%",
       isAvailable: p.isAvailable,
       categoryId: p.categoryId || "none",
       stockQuantity: String(p.stockQuantity ?? 999),
@@ -117,6 +121,7 @@ export default function DashboardProducts() {
         description: form.description.trim(),
         basePrice: price,
         imageUrl: form.imageUrl.trim() || null,
+        imagePosition: form.imagePosition || "50% 50%",
         isAvailable: form.isAvailable,
         categoryId: form.categoryId === "none" ? null : form.categoryId,
         stockQuantity: isNaN(stock) ? 999 : stock,
@@ -284,7 +289,7 @@ export default function DashboardProducts() {
                   return (
                     <div key={product.id} className="flex items-center gap-3 px-4 py-3" data-testid={`row-product-${product.id}`}>
                       {product.imageUrl ? (
-                        <img src={product.imageUrl} alt={product.name} className="w-10 h-10 rounded-lg object-cover shrink-0" />
+                        <img src={resolveUrl(product.imageUrl)} alt={product.name} className="w-10 h-10 rounded-lg object-cover shrink-0" />
                       ) : (
                         <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
                           <Package className="w-4 h-4 text-muted-foreground" />
@@ -439,9 +444,19 @@ export default function DashboardProducts() {
               </Select>
             </div>
             <div className="space-y-1">
-              <Label htmlFor="prodImage" className="text-xs">Image URL</Label>
-              <Input id="prodImage" type="url" placeholder="https://..." value={form.imageUrl} onChange={e => setForm(p => ({ ...p, imageUrl: e.target.value }))} data-testid="input-productImage" />
+              <Label className="text-xs">Product Image</Label>
+              <ImageUpload
+                value={form.imageUrl}
+                onChange={url => setForm(p => ({ ...p, imageUrl: url, imagePosition: "50% 50%" }))}
+              />
             </div>
+            {form.imageUrl ? (
+              <ImagePositionPicker
+                imageUrl={form.imageUrl}
+                position={form.imagePosition}
+                onChange={pos => setForm(p => ({ ...p, imagePosition: pos }))}
+              />
+            ) : null}
             <div className="flex items-center justify-between py-1">
               <Label className="text-xs">Available for ordering</Label>
               <Switch checked={form.isAvailable} onCheckedChange={v => setForm(p => ({ ...p, isAvailable: v }))} data-testid="switch-productAvailable" />

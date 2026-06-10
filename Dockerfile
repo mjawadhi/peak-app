@@ -10,12 +10,13 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-# Create data directory for persistent volume
-RUN mkdir -p /app/data
+# Create persistent directories for volume mounts
+RUN mkdir -p /app/data /app/uploads
 
 EXPOSE 5000
 
 ENV NODE_ENV=production
 ENV DATABASE_PATH=/app/data/data.db
+ENV UPLOADS_DIR=/app/uploads
 
 CMD ["node", "dist/index.cjs"]

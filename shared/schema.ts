@@ -75,6 +75,7 @@ export const products = sqliteTable("products", {
   slug: text("slug"),
   basePrice: real("base_price").default(0),
   imageUrl: text("image_url").default(""),
+  imagePosition: text("image_position").default("50% 50%"), // CSS object-position e.g. "50% 30%"
   stockQuantity: integer("stock_quantity").default(999),
   isActive: integer("is_active").default(1),
   sortOrder: integer("sort_order").default(0),

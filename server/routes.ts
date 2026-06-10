@@ -1,5 +1,8 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import type { Server } from "node:http";
+import multer from "multer";
+import fs from "fs";
+import path from "path";
 import jwt from "jsonwebtoken";
 import {
   seedIfEmpty, signToken, verifyToken, checkPassword, hashPassword,
@@ -69,7 +72,28 @@ function auditLog(req: Request, actorType: "super_admin" | "tenant_user", action
   } catch {}
 }
 
-// ─── Permission presets ──────────────────────────────────────────
+// ─── File upload (multer) ───────────────────────────────────────
+const UPLOADS_DIR = process.env.UPLOADS_DIR || path.join(process.cwd(), "uploads");
+if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+
+const storage_multer = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, UPLOADS_DIR),
+  filename: (_req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase() || ".jpg";
+    cb(null, `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
+  },
+});
+
+const upload = multer({
+  storage: storage_multer,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+  fileFilter: (_req, file, cb) => {
+    const allowed = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    cb(null, allowed.includes(file.mimetype));
+  },
+});
+
+// ─── Permission presets ───────────────────────────────────────────
 export interface TenantPermissions {
   orders: "none" | "view" | "manage";
   products: "none" | "view" | "manage";
@@ -112,6 +136,23 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
 
   // ─── Health ──────────────────────────────────────────────────
   app.get("/api/health", (_req, res) => res.json({ status: "ok", version: "1.0.0-phase1" }));
+
+  // ─── File Upload ─────────────────────────────────────────────
+  // Serve uploaded images publicly
+  app.use("/uploads", (req: any, res: any) => {
+    const filePath = path.join(UPLOADS_DIR, path.basename(req.path));
+    if (!fs.existsSync(filePath)) return res.status(404).json({ message: "Not found" });
+    res.sendFile(filePath);
+  });
+
+  // Upload image (requires tenant auth)
+  app.post("/api/upload", requireTU, upload.single("file"), (req: any, res: any) => {
+    try {
+      if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+      res.json({ url: `/uploads/${req.file.filename}` });
+    } catch (e: any) { res.status(500).json({ message: e.message }); }
+  });
+
 
   // ─── SUPER ADMIN AUTH ─────────────────────────────────────────
   app.post("/api/super-admin/auth/login", async (req, res) => {
@@ -501,6 +542,7 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
         id: p.id, name: p.nameEn, description: p.descriptionEn || "",
         basePrice: parseFloat(String(p.basePrice)) || 0,
         imageUrl: p.imageUrl || "",
+        imagePosition: p.imagePosition || "50% 50%",
         categoryId: p.categoryId || null,
         isAvailable: p.isActive === 1,
         stockQuantity: p.stockQuantity ?? 999,
@@ -605,6 +647,7 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
         id: p.id, name: p.nameEn, description: p.descriptionEn || "",
         basePrice: parseFloat(String(p.basePrice)) || 0,
         imageUrl: p.imageUrl || "",
+        imagePosition: p.imagePosition || "50% 50%",
         categoryId: p.categoryId || null,
         isAvailable: p.isActive === 1,
         stockQuantity: p.stockQuantity ?? 999,
@@ -615,12 +658,13 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
   app.post("/api/t/:slug/dashboard/products", requireTU, (req, res) => {
     try {
       const { tenantId } = (req as any).tenantUser as TUPayload;
-      const { name, description, basePrice, imageUrl, categoryId, stockQuantity } = req.body;
+      const { name, description, basePrice, imageUrl, imagePosition, categoryId, stockQuantity } = req.body;
       const p = createProduct(tenantId, {
         nameEn: name || "", nameAr: name || "",
         basePrice: parseFloat(basePrice) || 0,
         descriptionEn: description || "", descriptionAr: description || "",
         imageUrl: imageUrl || "",
+        imagePosition: imagePosition || "50% 50%",
         categoryId: categoryId || undefined,
       });
       // update stock
@@ -635,12 +679,13 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     try {
       const { tenantId } = (req as any).tenantUser as TUPayload;
       const { productId } = req.params;
-      const { name, description, basePrice, imageUrl, isAvailable, categoryId, stockQuantity } = req.body;
+      const { name, description, basePrice, imageUrl, imagePosition, isAvailable, categoryId, stockQuantity } = req.body;
       const updates: Record<string, any> = {};
       if (name !== undefined) { updates.nameEn = name; updates.nameAr = name; }
       if (description !== undefined) { updates.descriptionEn = description; updates.descriptionAr = description; }
       if (basePrice !== undefined) updates.basePrice = parseFloat(basePrice);
       if (imageUrl !== undefined) updates.imageUrl = imageUrl;
+      if (imagePosition !== undefined) updates.imagePosition = imagePosition;
       if (isAvailable !== undefined) updates.isActive = isAvailable ? 1 : 0;
       if (categoryId !== undefined) updates.categoryId = categoryId;
       if (stockQuantity !== undefined) updates.stockQuantity = parseInt(stockQuantity) || 999;

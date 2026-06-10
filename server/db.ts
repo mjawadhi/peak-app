@@ -133,3 +133,4 @@ addColumnIfMissing("orders", "branch_name", "TEXT");
 addColumnIfMissing("orders", "branch_address", "TEXT");
 addColumnIfMissing("super_admins", "role", "TEXT DEFAULT 'admin'");
 addColumnIfMissing("tenant_users", "permissions", "TEXT DEFAULT '{}'");
+addColumnIfMissing("products", "image_position", "TEXT DEFAULT '50% 50%'");
