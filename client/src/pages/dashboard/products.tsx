@@ -406,10 +406,11 @@ export default function DashboardProducts() {
 
       {/* ── Product dialog ── */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
+        <DialogContent className="max-w-sm flex flex-col max-h-[90vh]">
+          <DialogHeader className="shrink-0">
             <DialogTitle>{editTarget ? "Edit Product" : "Add Product"}</DialogTitle>
           </DialogHeader>
+          <div className="overflow-y-auto flex-1 pr-1">
           <div className="space-y-3">
             <div className="space-y-1">
               <Label htmlFor="prodName" className="text-xs">Name *</Label>
@@ -461,13 +462,14 @@ export default function DashboardProducts() {
               <Label className="text-xs">Available for ordering</Label>
               <Switch checked={form.isAvailable} onCheckedChange={v => setForm(p => ({ ...p, isAvailable: v }))} data-testid="switch-productAvailable" />
             </div>
-            <div className="flex gap-2 pt-1">
-              <Button variant="outline" className="flex-1" onClick={() => setDialogOpen(false)}>Cancel</Button>
-              <Button className="flex-1" onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending} data-testid="button-saveProduct">
-                {saveMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                {editTarget ? "Save Changes" : "Add Product"}
-              </Button>
-            </div>
+          </div>
+          </div>
+          <div className="flex gap-2 pt-2 shrink-0 border-t border-border">
+            <Button variant="outline" className="flex-1" onClick={() => setDialogOpen(false)}>Cancel</Button>
+            <Button className="flex-1" onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending} data-testid="button-saveProduct">
+              {saveMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              {editTarget ? "Save Changes" : "Add Product"}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
