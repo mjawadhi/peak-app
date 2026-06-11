@@ -41,13 +41,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="flex flex-col h-full">
       {/* Brand */}
       <div className="px-4 py-4 border-b border-border flex items-center gap-2">
-        {/* Peak inline SVG logo */}
-        <svg viewBox="0 0 120 36" aria-label="Peak" className="h-7 w-auto shrink-0" fill="none" xmlns="http://www.w3.org/2000/svg">
-          {/* PEAK wordmark */}
-          <text x="0" y="28" fontFamily="'Inter','Cairo',sans-serif" fontWeight="700" fontSize="30" fill="#373643">PEAK</text>
-          {/* Teal arrow accent — top-right corner mark */}
-          <polygon points="107,2 116,2 116,11" fill="#2d999d" />
-        </svg>
+        <div className="flex items-center gap-0.5 shrink-0">
+          <span style={{ fontFamily: "'Inter',sans-serif", fontWeight: 700, fontSize: 20, color: "#373643", letterSpacing: -0.5 }}>PEAK</span>
+          <svg viewBox="0 0 10 10" className="w-2.5 h-2.5 mb-3" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="0,0 10,0 10,10" fill="#2d999d" />
+          </svg>
+        </div>
         <p className="text-xs text-muted-foreground leading-tight">Super Admin</p>
       </div>
 
@@ -105,10 +104,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <button onClick={() => setMobileOpen(true)} className="text-muted-foreground">
             <Menu className="w-5 h-5" />
           </button>
-          <svg viewBox="0 0 100 30" aria-label="Peak" className="h-6 w-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <text x="0" y="24" fontFamily="'Inter','Cairo',sans-serif" fontWeight="700" fontSize="26" fill="#373643">PEAK</text>
-            <polygon points="89,1 97,1 97,9" fill="#2d999d" />
-          </svg>
+          <div className="flex items-center gap-0.5">
+            <span style={{ fontFamily: "'Inter',sans-serif", fontWeight: 700, fontSize: 18, color: "#373643", letterSpacing: -0.5 }}>PEAK</span>
+            <svg viewBox="0 0 10 10" className="w-2 h-2 mb-3" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <polygon points="0,0 10,0 10,10" fill="#2d999d" />
+            </svg>
+          </div>
         </header>
         <main className="flex-1 overflow-y-auto">{children}</main>
       </div>

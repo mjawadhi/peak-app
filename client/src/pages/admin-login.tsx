@@ -40,10 +40,10 @@ export default function AdminLogin() {
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center space-y-2">
-          <div className="flex justify-center">
-            <svg viewBox="0 0 120 36" aria-label="Peak" className="h-10 w-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <text x="0" y="28" fontFamily="'Inter','Cairo',sans-serif" fontWeight="700" fontSize="30" fill="#373643">PEAK</text>
-              <polygon points="107,2 116,2 116,11" fill="#2d999d" />
+          <div className="flex justify-center items-center gap-1">
+            <span style={{ fontFamily: "'Inter',sans-serif", fontWeight: 700, fontSize: 32, color: "#373643", letterSpacing: -1 }}>PEAK</span>
+            <svg viewBox="0 0 10 10" className="w-3 h-3 mb-4" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <polygon points="0,0 10,0 10,10" fill="#2d999d" />
             </svg>
           </div>
           <p className="text-sm text-muted-foreground">Super Admin Portal</p>
