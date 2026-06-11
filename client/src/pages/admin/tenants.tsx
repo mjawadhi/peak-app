@@ -331,9 +331,9 @@ export default function AdminTenants() {
                   <button onClick={() => setUsersDialogTenant(t)} className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border border-border hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
                     <UserCog className="w-3 h-3" /> Users
                   </button>
-                  <a href={`/#/t/${t.slug}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border border-border hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+                  <button onClick={() => window.open(`/#/t/${t.slug}`, "_blank")} className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border border-border hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
                     <ExternalLink className="w-3 h-3" /> View Store
-                  </a>
+                  </button>
                   <button onClick={() => setTenantToDelete(t)} className="ml-auto flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border border-destructive/30 hover:bg-destructive/10 transition-colors text-destructive font-medium">
                     <Trash2 className="w-3 h-3" /> Delete
                   </button>
@@ -396,9 +396,9 @@ export default function AdminTenants() {
 
       {/* Edit Dialog */}
       <Dialog open={editOpen} onOpenChange={v => !v && setEditOpen(false)}>
-        <DialogContent className="max-w-sm max-h-[85vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>Edit — {selectedTenant?.name}</DialogTitle></DialogHeader>
-          <div className="space-y-3">
+        <DialogContent className="max-w-sm flex flex-col max-h-[90vh]">
+          <DialogHeader className="shrink-0"><DialogTitle>Edit — {selectedTenant?.name}</DialogTitle></DialogHeader>
+          <div className="overflow-y-auto flex-1 pr-1"><div className="space-y-3">
             <div className="space-y-1"><Label className="text-xs">Store Name</Label>
               <Input value={editForm.name} onChange={e => setEditForm(p => ({ ...p, name: e.target.value }))} /></div>
             <div className="space-y-1"><Label className="text-xs">Description</Label>
@@ -436,12 +436,12 @@ export default function AdminTenants() {
               <div className="space-y-1"><Label className="text-xs">Min Order KWD</Label>
                 <Input type="number" min="0" value={editForm.minOrderAmount} onChange={e => setEditForm(p => ({ ...p, minOrderAmount: e.target.value }))} /></div>
             </div>
-            <div className="flex gap-2 pt-1">
-              <Button variant="outline" className="flex-1" onClick={() => setEditOpen(false)}>Cancel</Button>
-              <Button className="flex-1" onClick={() => editMutation.mutate()} disabled={editMutation.isPending || (editForm.slug !== selectedTenant?.slug && editSlugAvail === false)}>
-                {editMutation.isPending && <Loader2 className="w-4 h-4 animate-spin mr-2" />} Save
-              </Button>
-            </div>
+          </div></div>
+          <div className="flex gap-2 pt-2 shrink-0 border-t border-border">
+            <Button variant="outline" className="flex-1" onClick={() => setEditOpen(false)}>Cancel</Button>
+            <Button className="flex-1" onClick={() => editMutation.mutate()} disabled={editMutation.isPending || (editForm.slug !== selectedTenant?.slug && editSlugAvail === false)}>
+              {editMutation.isPending && <Loader2 className="w-4 h-4 animate-spin mr-2" />} Save
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
