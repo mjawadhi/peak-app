@@ -425,9 +425,9 @@ export default function AdminTenants() {
             <div className="space-y-1"><Label className="text-xs">Owner Email</Label>
               <Input type="email" value={editForm.ownerEmail} onChange={e => setEditForm(p => ({ ...p, ownerEmail: e.target.value }))} /></div>
             <div className="space-y-1"><Label className="text-xs">Plan</Label>
-              <Select value={editForm.planId} onValueChange={v => setEditForm(p => ({ ...p, planId: v }))}>
+              <Select value={editForm.planId || "none"} onValueChange={v => setEditForm(p => ({ ...p, planId: v === "none" ? "" : v }))}>
                 <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="No plan" /></SelectTrigger>
-                <SelectContent>{PLANS.map(p => <SelectItem key={p} value={p} className="text-sm capitalize">{p || "No plan"}</SelectItem>)}</SelectContent>
+                <SelectContent>{PLANS.map(p => <SelectItem key={p || "none"} value={p || "none"} className="text-sm capitalize">{p || "No plan"}</SelectItem>)}</SelectContent>
               </Select>
             </div>
             <div className="grid grid-cols-2 gap-2">
