@@ -1,10 +1,9 @@
 import { useLocation, Link } from "wouter";
 import { useEffect, useState } from "react";
-import peakLogo from "@/lib/logo";
 import { getSAToken, clearSAToken, decodePayload } from "@/lib/auth";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import {
-  LayoutDashboard, Store, BarChart3,
+  LayoutDashboard, Store, BarChart3, Shield,
   Settings, LogOut, Menu, ChevronRight, Users, ScrollText,
 } from "lucide-react";
 
@@ -38,11 +37,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return location.startsWith(href);
   }
 
+  const ACCENT = "#6366f1";
+
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
       {/* Brand */}
-      <div className="px-4 py-4 border-b border-border flex items-center gap-2">
-        <img src={peakLogo} alt="Peak" className="h-6 w-auto shrink-0" />
+      <div className="px-4 py-4 border-b border-border flex items-center gap-2.5">
+        <div className="h-8 w-8 rounded-lg flex items-center justify-center text-white text-xs font-bold shrink-0" style={{ backgroundColor: ACCENT }}>
+          <Shield className="w-4 h-4" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm font-semibold truncate">Peak Admin</p>
+          <p className="text-xs text-muted-foreground">Super Admin Panel</p>
+        </div>
       </div>
 
       {/* Nav */}
@@ -99,7 +106,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <button onClick={() => setMobileOpen(true)} className="text-muted-foreground">
             <Menu className="w-5 h-5" />
           </button>
-          <img src={peakLogo} alt="Peak" className="h-5 w-auto" />
+          <span className="font-semibold text-sm">Peak Admin</span>
         </header>
         <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
