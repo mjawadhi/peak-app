@@ -1,5 +1,6 @@
 import { useLocation, Link } from "wouter";
 import { useEffect, useState } from "react";
+import peakLogo from "@assets/peak-logo.jpg";
 import { getSAToken, clearSAToken, decodePayload } from "@/lib/auth";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import {
@@ -41,13 +42,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="flex flex-col h-full">
       {/* Brand */}
       <div className="px-4 py-4 border-b border-border flex items-center gap-2">
-        <div className="flex items-center gap-0.5 shrink-0">
-          <span style={{ fontFamily: "'Inter',sans-serif", fontWeight: 700, fontSize: 20, color: "#373643", letterSpacing: -0.5 }}>PEAK</span>
-          <svg viewBox="0 0 10 10" className="w-2.5 h-2.5 mb-3" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <polygon points="0,0 10,0 10,10" fill="#2d999d" />
-          </svg>
-        </div>
-        <p className="text-xs text-muted-foreground leading-tight">Super Admin</p>
+        <img src={peakLogo} alt="Peak" className="h-6 w-auto shrink-0" />
       </div>
 
       {/* Nav */}
@@ -104,12 +99,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <button onClick={() => setMobileOpen(true)} className="text-muted-foreground">
             <Menu className="w-5 h-5" />
           </button>
-          <div className="flex items-center gap-0.5">
-            <span style={{ fontFamily: "'Inter',sans-serif", fontWeight: 700, fontSize: 18, color: "#373643", letterSpacing: -0.5 }}>PEAK</span>
-            <svg viewBox="0 0 10 10" className="w-2 h-2 mb-3" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <polygon points="0,0 10,0 10,10" fill="#2d999d" />
-            </svg>
-          </div>
+          <img src={peakLogo} alt="Peak" className="h-5 w-auto" />
         </header>
         <main className="flex-1 overflow-y-auto">{children}</main>
       </div>

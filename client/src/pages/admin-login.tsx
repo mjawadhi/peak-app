@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Eye, EyeOff } from "lucide-react";
+import peakLogo from "@assets/peak-logo.jpg";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AdminLogin() {
@@ -40,12 +41,7 @@ export default function AdminLogin() {
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center space-y-2">
-          <div className="flex justify-center items-center gap-1">
-            <span style={{ fontFamily: "'Inter',sans-serif", fontWeight: 700, fontSize: 32, color: "#373643", letterSpacing: -1 }}>PEAK</span>
-            <svg viewBox="0 0 10 10" className="w-3 h-3 mb-4" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <polygon points="0,0 10,0 10,10" fill="#2d999d" />
-            </svg>
-          </div>
+          <img src={peakLogo} alt="Peak" className="h-10 w-auto mx-auto" />
           <p className="text-sm text-muted-foreground">Super Admin Portal</p>
         </div>
 
