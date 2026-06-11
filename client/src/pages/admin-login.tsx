@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Eye, EyeOff } from "lucide-react";
-import peakLogo from "@assets/peak-logo.jpg";
+import peakLogo from "@/lib/logo";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AdminLogin() {

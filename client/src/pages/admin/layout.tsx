@@ -1,6 +1,6 @@
 import { useLocation, Link } from "wouter";
 import { useEffect, useState } from "react";
-import peakLogo from "@assets/peak-logo.jpg";
+import peakLogo from "@/lib/logo";
 import { getSAToken, clearSAToken, decodePayload } from "@/lib/auth";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import {
