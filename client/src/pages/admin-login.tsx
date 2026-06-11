@@ -5,7 +5,7 @@ import { setSAToken } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Shield, Eye, EyeOff } from "lucide-react";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AdminLogin() {
@@ -40,10 +40,12 @@ export default function AdminLogin() {
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center space-y-2">
-          <div className="h-14 w-14 rounded-full bg-primary flex items-center justify-center mx-auto">
-            <Shield className="w-7 h-7 text-primary-foreground" />
+          <div className="flex justify-center">
+            <svg viewBox="0 0 120 36" aria-label="Peak" className="h-10 w-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <text x="0" y="28" fontFamily="'Inter','Cairo',sans-serif" fontWeight="700" fontSize="30" fill="#373643">PEAK</text>
+              <polygon points="107,2 116,2 116,11" fill="#2d999d" />
+            </svg>
           </div>
-          <h1 className="text-xl font-bold">Peak Admin</h1>
           <p className="text-sm text-muted-foreground">Super Admin Portal</p>
         </div>
 
